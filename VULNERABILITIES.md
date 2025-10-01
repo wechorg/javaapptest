@@ -4,7 +4,7 @@ This document lists all intentional security vulnerabilities included in this ap
 
 ## CodeQL Detection Results
 
-CodeQL successfully detected **13 security alerts** in this application:
+CodeQL successfully detected **13 security alerts** in this application (some vulnerability categories below contain multiple instances):
 
 ### 1. Insecure Randomness (CWE-330)
 - **File**: `AuthenticationService.java`, `UserController.java`
@@ -68,7 +68,9 @@ CodeQL successfully detected **13 security alerts** in this application:
   - `UserController.java:122` - ping endpoint
   - `UserController.java:129` - execute endpoint
 
-## Additional Vulnerabilities Not Detected by Basic Scan
+## Additional Vulnerabilities (Not Always Detected by Static Analysis)
+
+These vulnerabilities exist in the code but may require deeper analysis or specific scanner configurations to detect:
 
 ### 10. Hardcoded Credentials (CWE-798)
 - **Files**: `AuthenticationService.java`, `SecurityConfig.java`, `application.properties`
@@ -129,7 +131,11 @@ curl "http://localhost:8080/api/users/search?query=' OR '1'='1"
 
 ### Command Injection
 ```bash
-curl "http://localhost:8080/api/users/ping?host=127.0.0.1; cat /etc/passwd"
+# Note: Semicolon needs URL encoding (%3B) in the query parameter
+curl "http://localhost:8080/api/users/ping?host=127.0.0.1%3B%20cat%20/etc/passwd"
+
+# Or use the execute endpoint:
+curl -X POST "http://localhost:8080/api/users/execute?command=ls%20-la"
 ```
 
 ### Path Traversal
